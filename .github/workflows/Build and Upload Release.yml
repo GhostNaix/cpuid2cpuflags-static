@@ -25,6 +25,7 @@ jobs:
       id: make_build
       run: |
         make -j$((`nproc`+1))
+        strip -s cpuid2cpuflags
     - name: Packaging Libraries 
       run: |
         tar -czvf cpuid2cpuflags.tar.gz cpuid2cpuflags
@@ -37,4 +38,4 @@ jobs:
         name: cpuid2cpuflags static binary Release ${{vars.VERSION}}
         tag_name: ${{vars.VERSION}}-${{github.run_id}}
         files: |
-          ./cpuid2cpuflags*
+          ./cpuid2cpuflags.*
