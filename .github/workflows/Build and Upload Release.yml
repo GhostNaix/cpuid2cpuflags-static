@@ -1,0 +1,40 @@
+name: Build and Upload Release
+
+on: [workflow_dispatch]
+
+jobs:
+ build-libs:
+   name: Build Libraries And Upload Release
+   runs-on: ubuntu-latest
+   steps:
+    - name: Clone
+      id: checkout
+      uses: actions/checkout@v3
+      with:
+        ref: concedo
+    - name: Updating System
+      run: |
+        sudo apt-get update
+        sudo apt-get full-upgrade -y
+    - name: Configuring build
+      id: config_build
+      run: |
+        autoreconf -vi
+        ./configure CFLAGS=-static
+    - name: Creating Static Build
+      id: make_build
+      run: |
+        make -j$((`nproc`+1))
+    - name: Packaging Libraries 
+      run: |
+        tar -czvf cpuid2cpuflags.tar.gz cpuid2cpuflags
+        tar -cJvf cpuid2cpuflags.tar.xz cpuid2cpuflags
+        zip cpuid2cpuflags.zip cpuid2cpuflags
+    - name: Make And Upload Release
+      uses: softprops/action-gh-release@v1
+      with:
+        prerelease: false
+        name: cpuid2cpuflags static binary Release ${{vars.VERSION}}
+        tag_name: ${{vars.VERSION}}-${{github.run_id}}
+        files: |
+          ./cpuid2cpuflags*
